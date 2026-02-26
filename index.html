@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>StockFlow Pro v8.0.0</title>
+    <meta name="theme-color" content="#000000">
+
+    <link rel="icon" href="icone.png" type="image/png">
+    <link rel="apple-touch-icon" href="icone.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="StockFlow Pro">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container"></div>
+
+    <!-- ===== MODAL: CONFIRMAÇÃO (compartilhado por todo o app) ===== -->
+    <div id="modal-confirm" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div id="modal-text">Mensagem</div>
+            <div class="modal-buttons">
+                <button id="modal-btn-cancel">Cancelar</button>
+                <button id="modal-btn-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: NOVIDADES (StockFlow) ===== -->
+    <div id="modal-whatsnew" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width: 400px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span style="font-weight: bold; font-size: 18px;">O que há de novo</span>
+                <button class="fechar-whatsnew" style="background: none; border: none; font-size: 20px; color: var(--accent);">✖</button>
+            </div>
+            <div id="whatsnew-content" style="max-height: 300px; overflow-y: auto; font-size: 14px; line-height: 1.6; color: var(--text); white-space: pre-wrap;"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="fechar-whatsnew" style="background-color: var(--btn-blue); color: white; border: none; padding: 10px 30px; border-radius: 8px;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: CALCULADORA (StockFlow Estoque) ===== -->
+    <div id="modal-calc" class="modal-overlay" style="display:none;">
+        <div class="calc-box">
+            <div class="calc-header">
+                <span id="calc-title">Calculadora</span>
+                <button class="calc-close">✖</button>
+            </div>
+            <div id="calc-display">0</div>
+            <div class="calc-grid">
+                <button class="calc-btn calc-bg-op" data-calc="C">C</button>
+                <button class="calc-btn calc-bg-op" data-calc="÷">/</button>
+                <button class="calc-btn calc-bg-op" data-calc="×">×</button>
+                <button class="calc-btn calc-bg-op" data-calc="BACK">⌫</button>
+                <button class="calc-btn" data-calc="7">7</button>
+                <button class="calc-btn" data-calc="8">8</button>
+                <button class="calc-btn" data-calc="9">9</button>
+                <button class="calc-btn calc-bg-op" data-calc="-">-</button>
+                <button class="calc-btn" data-calc="4">4</button>
+                <button class="calc-btn" data-calc="5">5</button>
+                <button class="calc-btn" data-calc="6">6</button>
+                <button class="calc-btn calc-bg-op" data-calc="+">+</button>
+                <button class="calc-btn" data-calc="1">1</button>
+                <button class="calc-btn" data-calc="2">2</button>
+                <button class="calc-btn" data-calc="3">3</button>
+                <button class="calc-btn calc-bg-confirm" style="grid-row: span 2;" data-calc="OK">OK</button>
+                <button class="calc-btn" data-calc="0" style="grid-column: span 2;">0</button>
+                <button class="calc-btn" data-calc=",">,</button>
+            </div>
+            <button id="calc-btn-teclado" class="btn-half" style="margin-top: 10px; background: var(--btn-blue); color: white;">Usar teclado</button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: ALERTA DE ESTOQUE ===== -->
+    <div id="modal-alerta" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width: 300px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span style="font-weight: bold;">Configurar Alerta</span>
+                <button class="fechar-modal-alerta" style="background: none; border: none; font-size: 20px; color: var(--accent);">✖</button>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; text-align: left;">Estoque Mínimo</label>
+                <input type="number" id="alerta-min" placeholder="0 (sem alerta)" style="width: 100%; padding: 10px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; text-align: left;">Estoque Máximo</label>
+                <input type="number" id="alerta-max" placeholder="0 (sem alerta)" style="width: 100%; padding: 10px;">
+            </div>
+            <div class="modal-buttons">
+                <button id="salvar-alerta" style="flex: 1; background-color: var(--btn-green); color: white;">Salvar</button>
+                <button class="fechar-modal-alerta" style="flex: 1; background: transparent; border: 1px solid var(--border);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: CALCULADORA LISTA FÁCIL ===== -->
+    <div id="lf-calcModal" class="modal-overlay" style="display:none;">
+        <div class="calc-box">
+            <div class="calc-header">
+                <span id="lf-calc-title">Calculadora</span>
+                <button class="calc-close" id="lf-closeCalc">✖</button>
+            </div>
+            <div id="lf-calc-display">0</div>
+            <div class="calc-grid">
+                <button class="calc-btn calc-bg-op" data-lf-calc="C">C</button>
+                <button class="calc-btn calc-bg-op" data-lf-calc="÷">÷</button>
+                <button class="calc-btn calc-bg-op" data-lf-calc="×">×</button>
+                <button class="calc-btn calc-bg-op" data-lf-calc="BACK">⌫</button>
+                <button class="calc-btn" data-lf-calc="7">7</button>
+                <button class="calc-btn" data-lf-calc="8">8</button>
+                <button class="calc-btn" data-lf-calc="9">9</button>
+                <button class="calc-btn calc-bg-op" data-lf-calc="-">-</button>
+                <button class="calc-btn" data-lf-calc="4">4</button>
+                <button class="calc-btn" data-lf-calc="5">5</button>
+                <button class="calc-btn" data-lf-calc="6">6</button>
+                <button class="calc-btn calc-bg-op" data-lf-calc="+">+</button>
+                <button class="calc-btn" data-lf-calc="1">1</button>
+                <button class="calc-btn" data-lf-calc="2">2</button>
+                <button class="calc-btn" data-lf-calc="3">3</button>
+                <button class="calc-btn calc-bg-confirm" style="grid-row: span 2;" data-lf-calc="OK">OK</button>
+                <button class="calc-btn" data-lf-calc="0" style="grid-column: span 2;">0</button>
+                <button class="calc-btn" data-lf-calc=",">,</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: CHANGELOG LISTA FÁCIL ===== -->
+    <div id="lf-changelogModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width: 440px; text-align: left; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span style="font-weight: 700; font-size: 18px;">📜 Histórico — Lista Fácil</span>
+                <button id="lf-closeChangelog" style="background: none; border: none; font-size: 20px; color: var(--accent);">✖</button>
+            </div>
+            <div style="font-size: 14px; line-height: 1.7; color: var(--text);">
+                <p style="margin-bottom:12px;"><strong>v2.4.0</strong> — Integração ao StockFlow Pro<br>
+                Módulo totalmente reescrito como ES Module. Bugs de listener acumulado e índice stale corrigidos. Dados agora persistidos com chaves próprias no localStorage.</p>
+                <p style="margin-bottom:12px;"><strong>v2.2.2</strong> — Campo de orçamento limpa ao focar, restaura ao cancelar.</p>
+                <p style="margin-bottom:12px;"><strong>v2.2.1</strong> — Formatação de moeda com separador de milhar.</p>
+                <p style="margin-bottom:12px;"><strong>v2.2.0</strong> — Swipe para excluir item. Comparador de preços por unidade.</p>
+                <p style="margin-bottom:12px;"><strong>v2.1.0</strong> — Calculadora modal integrada ao campo de preço.</p>
+                <p><strong>v2.0.0</strong> — Versão inicial com lista de compras, orçamento e total.</p>
+            </div>
+            <div style="margin-top: 24px; text-align: center;">
+                <button id="lf-closeChangelogBtn" style="background-color: var(--btn-blue); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-size: 14px; font-weight: 600;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FAB: LISTA FÁCIL (fixo, controlado por JS) ===== -->
+    <button id="lf-fabAddItem" aria-label="Adicionar item" style="display:none;">+</button>
+
+    <!-- ===== LUPA FLUTUANTE ===== -->
+    <div id="assistive-touch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+    </div>
+
+    <!-- ===== OVERLAY DE BUSCA ===== -->
+    <div id="search-overlay">
+        <div class="search-inner">
+            <div style="position: relative; flex: 1;">
+                <input type="text" id="filtroBusca" placeholder="Buscar..." style="padding-right: 55px;">
+                <button class="btn-mic" id="btn-mic-busca">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <span class="btn-limpar" data-limpar="filtroBusca">✖</span>
+            </div>
+            <select id="filtroSelect" style="max-width: 100px;">
+                <option value="">ITENS</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ===== CABEÇALHO ===== -->
+    <div class="header-container">
+        <h1 id="titulo-principal">StockFlow Pro</h1>
+        <button class="btn-theme">🌓</button>
+    </div>
+
+    <!-- ===== MENU DE ABAS ===== -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="estoque">
+            <span class="tab-label">Estoque</span>
+        </button>
+        <button class="nav-tab" data-tab="compras">
+            <span class="tab-label">Compras</span>
+        </button>
+        <button class="nav-tab" data-tab="adicionar">
+            <span class="tab-label">Adicionar</span>
+        </button>
+        <button class="nav-tab" data-tab="listafacil">
+            <span class="tab-label">Lista Fácil</span>
+        </button>
+    </div>
+
+    <!-- ===== SEÇÃO: ESTOQUE ===== -->
+    <section id="estoque-section" class="tab-content active">
+        <button id="btn-toggle-lista">Ocultar Lista de Estoque</button>
+
+        <div class="table-wrapper">
+            <div id="swipe-bg"></div>
+            <table id="tabela-estoque">
+                <thead>
+                    <tr>
+                        <th class="col-check"><input type="checkbox" id="check-todos"></th>
+                        <th class="col-desc">Descrição</th>
+                        <th class="col-qtd">Qtd</th>
+                        <th class="col-unid">Unid</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-itens-container"></tbody>
+            </table>
+        </div>
+
+        <div class="share-group" style="margin-bottom: 20px;">
+            <button class="btn-zap" id="btn-compartilhar-estoque">Enviar Estoque</button>
+            <button class="btn-zap" id="btn-copiar-estoque">Copiar Estoque</button>
+        </div>
+
+        <button id="btn-novo-dia">INICIAR NOVO DIA (ZERAR QTD)</button>
+        <button id="btn-exportar">SALVAR LISTA NO CELULAR</button>
+        <button id="btn-importar">CARREGAR LISTA DO CELULAR</button>
+        <button id="btn-reset">RESTAURAR LISTA PADRÃO</button>
+        <input type="file" id="input-arquivo" accept=".json" style="display: none;">
+    </section>
+
+    <!-- ===== SEÇÃO: COMPRAS ===== -->
+    <section id="compras-section" class="tab-content">
+        <div id="area-compras">
+            <h2 id="titulo-compras">LISTA DE COMPRAS</h2>
+            <ul id="lista-compras-visual"></ul>
+            <div class="share-group">
+                <button class="btn-compra" id="btn-compartilhar-compras">WhatsApp Compras</button>
+                <button class="btn-compra" id="btn-copiar-compras">Copiar Compras</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SEÇÃO: ADICIONAR ===== -->
+    <section id="adicionar-section" class="tab-content">
+        <div class="card">
+            <div class="input-group">
+                <div style="position: relative;">
+                    <label>Produto</label>
+                    <input type="text" id="novoProduto" placeholder="Item" style="padding-right: 55px;">
+                    <button class="btn-mic" id="btn-mic-prod">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
+                    <span class="btn-limpar" data-limpar="novoProduto">✖</span>
+                </div>
+                <div style="position: relative;" class="input-com-calc">
+                    <label>Qtd</label>
+                    <input type="text" id="novoQtd" placeholder="Qtd" readonly style="padding-right: 25px; cursor: pointer;">
+                </div>
+                <div>
+                    <label>Unid</label>
+                    <select id="novoUnidade">
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="uni">uni</option>
+                        <option value="pct">pct</option>
+                        <option value="cx">cx</option>
+                        <option value="bld">bld</option>
+                        <option value="crt">crt</option>
+                    </select>
+                </div>
+                <div class="action-group">
+                    <button id="add-btn" class="btn-half">Adicionar</button>
+                    <button id="add-star-btn" class="btn-half" title="Adicionar item e fixar na lista padrão">Fixar</button>
+                    <button id="remove-star-btn" class="btn-half" title="Remover item da lista padrão">Apagar</button>
+                </div>
+            </div>
+            <div id="status-save">Salvo.</div>
+        </div>
+    </section>
+
+    <!-- ===== SEÇÃO: LISTA FÁCIL ===== -->
+    <section id="listafacil-section" class="tab-content">
+
+        <!-- Painel de totais -->
+        <div class="lf-totals-panel">
+            <div class="lf-total-card">
+                <div class="lf-total-label">Orçamento</div>
+                <div class="lf-total-value">
+                    <input type="text" id="lf-budgetInput" inputmode="decimal" value="3.200,00" placeholder="R$ 0,00" aria-label="Orçamento">
+                </div>
+            </div>
+            <div class="lf-total-card">
+                <div class="lf-total-label">Total gasto</div>
+                <div class="lf-total-value" id="lf-totalGastoDisplay">R$ 0,00</div>
+            </div>
+            <div class="lf-total-card">
+                <div class="lf-total-label">Saldo</div>
+                <div class="lf-total-value" id="lf-diferencaDisplay">R$ 3.200,00</div>
+            </div>
+        </div>
+
+        <!-- Abas internas -->
+        <div class="lf-tab-bar">
+            <button class="lf-tab-btn active" data-lf-tab="lista">Lista</button>
+            <button class="lf-tab-btn" data-lf-tab="comparador">Comparador</button>
+        </div>
+
+        <!-- Aba: Lista de compras -->
+        <div id="lf-tab-lista" class="lf-tab-content active">
+
+            <!-- Botões de ação rápida -->
+            <div class="lf-global-actions">
+                <button class="lf-global-btn lf-btn-preco" id="lf-zerarPrecosBtn">Zerar Preços</button>
+                <button class="lf-global-btn lf-btn-qtd"   id="lf-zerarQuantidadesBtn">Zerar Qtd</button>
+                <button class="lf-global-btn lf-btn-item"  id="lf-zerarItensBtn">Zerar Itens</button>
+            </div>
+
+            <!-- Tabela -->
+            <div class="lf-table-wrapper" id="lf-tableWrapper">
+                <div id="lf-swipe-bg"></div>
+                <table id="lf-comprasTable">
+                    <thead>
+                        <tr>
+                            <th class="lf-col-prod">ITEM</th>
+                            <th class="lf-col-preco">PREÇO UNIT.</th>
+                            <th class="lf-col-qtd">QTD</th>
+                            <th class="lf-col-total">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lf-tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Aba: Comparador -->
+        <div id="lf-tab-comparador" class="lf-tab-content">
+            <div class="lf-comparador-container">
+                <div class="lf-comparador-title">Comparar preços por unidade</div>
+
+                <div class="lf-produto-card">
+                    <div class="lf-product-header">Produto 1</div>
+                    <div class="lf-linha-input">
+                        <div class="lf-col-input">
+                            <label>Preço (R$)</label>
+                            <input type="text" class="lf-preco-input" id="lf-comp_p1" placeholder="0,00" readonly>
+                        </div>
+                        <div class="lf-col-input">
+                            <label>Quantidade</label>
+                            <input type="text" inputmode="decimal" id="lf-comp_q1" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="lf-linha-input">
+                        <div class="lf-col-input">
+                            <label>Unidade</label>
+                            <select id="lf-comp_u1">
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                                <option value="l">L</option>
+                                <option value="ml">ml</option>
+                                <option value="un">un</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lf-produto-card">
+                    <div class="lf-product-header">Produto 2</div>
+                    <div class="lf-linha-input">
+                        <div class="lf-col-input">
+                            <label>Preço (R$)</label>
+                            <input type="text" class="lf-preco-input" id="lf-comp_p2" placeholder="0,00" readonly>
+                        </div>
+                        <div class="lf-col-input">
+                            <label>Quantidade</label>
+                            <input type="text" inputmode="decimal" id="lf-comp_q2" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="lf-linha-input">
+                        <div class="lf-col-input">
+                            <label>Unidade</label>
+                            <select id="lf-comp_u2">
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                                <option value="l">L</option>
+                                <option value="ml">ml</option>
+                                <option value="un">un</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="lf-btn-calcular" id="lf-btnComparar">Comparar</button>
+                <div id="lf-comparadorResultado" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Rodapé da seção -->
+        <div class="lf-footer-totals">
+            <div class="lf-footer-item">
+                <span class="lf-footer-label">Orçado</span>
+                <span class="lf-footer-number" id="lf-footerBudget">R$ 3.200,00</span>
+            </div>
+            <div class="lf-footer-item">
+                <span class="lf-footer-label">Gasto</span>
+                <span class="lf-footer-number" id="lf-footerGasto">R$ 0,00</span>
+            </div>
+            <div class="lf-footer-item">
+                <span class="lf-footer-label">Saldo</span>
+                <span class="lf-footer-number" id="lf-footerSaldo">R$ 3.200,00</span>
+            </div>
+        </div>
+
+        <div class="lf-version-link" id="lf-showChangelog">
+            📋 <span id="lf-versaoTitulo">v2.4.0</span> · Novidades da Lista Fácil
+        </div>
+
+    </section>
+
+    <!-- ===== BOTÕES FLUTUANTES (scroll) ===== -->
+    <div class="nav-float">
+        <button class="btn-nav" id="btn-scroll-top">▲</button>
+        <button class="btn-nav" id="btn-scroll-bottom">▼</button>
+    </div>
+
+    <!-- ===== SCRIPT PRINCIPAL ===== -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
